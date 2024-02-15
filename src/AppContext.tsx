@@ -61,9 +61,8 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 				headers,
 			});
 			if (response.status === 200) {
-				setCurrentUser(response.data.currentUser);
-				console.log("currentUser", currentUser);
-				console.log("statusText", response.statusText);
+				const _currentUser = response.data.currentUser;
+				setCurrentUser(_currentUser);
 			} else {
 				setCurrentUser(initialCurrentUser);
 			}
@@ -111,8 +110,7 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 				);
 				if (response.status === 200) {
 					localStorage.setItem("token", response.data.token);
-					console.log("object from backend", response.data);
-					console.log(response.statusText);
+					setCurrentUser(response.data.currentUser);
 				}
 			} catch (err) {
 				console.log("ERROR: bad login");
