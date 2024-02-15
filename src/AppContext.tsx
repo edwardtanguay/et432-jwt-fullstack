@@ -21,6 +21,7 @@ interface IAppContext {
 		fieldValue: string
 	) => void;
 	handleLoginFormSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+	currentUser: ICurrentUser;
 }
 
 interface IAppProvider {
@@ -37,20 +38,21 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 	const [currentUser, setCurrentUser] =
 		useState<ICurrentUser>(initialCurrentUser);
 
-	useEffect(() => {
-		(async () => {
-			const response = await axios.get(`${backendUrl}/books`);
-			const _books: IBook[] = response.data;
-			setBooks(_books);
-		})();
-	}, []);
+	const loadBooks = async () => {
+		const response = await axios.get(`${backendUrl}/books`);
+		const _books: IBook[] = response.data;
+		setBooks(_books);
+	};
+
+	const loadUsers = async () => {
+		const response = await axios.get(`${backendUrl}/users`);
+		const _users: IUser[] = response.data;
+		setUsers(_users);
+	};
 
 	useEffect(() => {
-		(async () => {
-			const response = await axios.get(`${backendUrl}/users`);
-			const _users: IUser[] = response.data;
-			setUsers(_users);
-		})();
+		loadBooks();
+		loadUsers();
 	}, []);
 
 	useEffect(() => {
@@ -127,6 +129,7 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 				loginFormData,
 				handleLoginFormFieldChange,
 				handleLoginFormSubmit,
+				currentUser,
 			}}
 		>
 			{children}
