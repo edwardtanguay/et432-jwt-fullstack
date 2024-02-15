@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { createContext, useEffect, useState } from "react";
 import {
@@ -50,34 +51,32 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 		setUsers(_users);
 	};
 
+	const loadCurrentUser = async () => {
+		try {
+			const headers = {
+				"Content-Type": "application/json",
+				authorization: `Bearer ${localStorage.getItem("token")}`,
+			};
+			const response = await axios.get(`${backendUrl}/users/current`, {
+				headers,
+			});
+			if (response.status === 200) {
+				setCurrentUser(response.data.currentUser);
+				console.log("currentUser", currentUser);
+				console.log("statusText", response.statusText);
+			} else {
+				setCurrentUser(initialCurrentUser);
+			}
+		} catch (e) {
+			setCurrentUser(initialCurrentUser);
+		}
+	};
+
 	useEffect(() => {
 		loadBooks();
 		loadUsers();
+		loadCurrentUser();
 	}, []);
-
-	useEffect(() => {
-		(async () => {
-			try {
-				const headers = {
-					"Content-Type": "application/json",
-					authorization: `Bearer ${localStorage.getItem("token")}`,
-				};
-				const response = await axios.get(
-					`${backendUrl}/users/current`,
-					{ headers }
-				);
-				if (response.status === 200) {
-					setCurrentUser(response.data.currentUser);
-					console.log("currentUser", currentUser);
-					console.log("statusText", response.statusText);
-				} else {
-					setCurrentUser(initialCurrentUser);
-				}
-			} catch (e) {
-				setCurrentUser(initialCurrentUser);
-			}
-		})();
-	});
 
 	const handleLoginFormFieldChange = (
 		fieldIdCode: string,
