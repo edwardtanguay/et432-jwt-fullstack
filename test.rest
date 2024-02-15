@@ -41,10 +41,11 @@ POST {{url}}/users
 content-type: application/json
 	
 {
-	"login": "aa", 
-	"firstName": "Amber",
-	"lastName": "Ashton",
-	"email": "aa@htl.com",
+	"login": "bb", 
+	"hash": "wsfskjiweu29384sdfjslfjsdlfkjwoeifwjef",
+	"firstName": "Bernd",
+	"lastName": "Buchton",
+	"email": "bb@htl.com",
 	"address" : {
 		"street": "Holework Street 23",
 		"zipCode": 31239,

@@ -1,15 +1,24 @@
 "use client";
 import { createContext, useEffect, useState } from "react";
-import { IBook, ILoginFormData, IUser, initialLoginformData } from "./interfaces";
+import {
+	IBook,
+	ILoginFormData,
+	IUser,
+	initialLoginformData,
+} from "./interfaces";
 import axios from "axios";
 
-const backendUrl = 'http://localhost:4211';
+const backendUrl = "http://localhost:4211";
 
 interface IAppContext {
 	books: IBook[];
 	users: IUser[];
 	loginFormData: ILoginFormData;
-	handleLoginFormFieldChange: (fieldIdCode: string, fieldValue: string) => void;
+	handleLoginFormFieldChange: (
+		fieldIdCode: string,
+		fieldValue: string
+	) => void;
+	handleLoginFormSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
 interface IAppProvider {
@@ -21,12 +30,13 @@ export const AppContext = createContext<IAppContext>({} as IAppContext);
 export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 	const [books, setBooks] = useState<IBook[]>([]);
 	const [users, setUsers] = useState<IUser[]>([]);
-	const [loginFormData, setLoginFormData] = useState<ILoginFormData>(initialLoginformData)
+	const [loginFormData, setLoginFormData] =
+		useState<ILoginFormData>(initialLoginformData);
 
 	useEffect(() => {
 		(async () => {
 			const response = await axios.get(`${backendUrl}/books`);
-			const _books:IBook[] = response.data;
+			const _books: IBook[] = response.data;
 			setBooks(_books);
 		})();
 	}, []);
@@ -34,22 +44,52 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 	useEffect(() => {
 		(async () => {
 			const response = await axios.get(`${backendUrl}/users`);
-			const _users:IUser[] = response.data;
+			const _users: IUser[] = response.data;
 			setUsers(_users);
 		})();
 	}, []);
 
-	const handleLoginFormFieldChange = (fieldIdCode: string, fieldValue: string) => {
+	const handleLoginFormFieldChange = (
+		fieldIdCode: string,
+		fieldValue: string
+	) => {
 		switch (fieldIdCode) {
-			case 'login':
+			case "login":
 				loginFormData.login = fieldValue;
 				break;
-			case 'password':
+			case "password":
 				loginFormData.password = fieldValue;
 				break;
 		}
 		setLoginFormData(structuredClone(loginFormData));
-	}
+	};
+
+	const handleLoginFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		(async () => {
+			const headers = {
+				"Access-Control-Allow-Origin": "*",
+				"Content-Type": "application/json",
+			};
+			try {
+				const response = await axios.post(
+					`${backendUrl}/users/login`,
+					{
+						login: loginFormData.login,
+						password: loginFormData.password,
+					},
+					{ headers }
+				);
+				if (response.status === 200) {
+					localStorage.setItem("token", response.data.token);
+					console.log("object from backend", response.data);
+					console.log(response.statusText);
+				}
+			} catch (err) {
+				console.log("ERROR: bad login");
+			}
+		})();
+	};
 
 	return (
 		<AppContext.Provider
@@ -57,7 +97,8 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 				books,
 				users,
 				loginFormData,
-				handleLoginFormFieldChange
+				handleLoginFormFieldChange,
+				handleLoginFormSubmit,
 			}}
 		>
 			{children}

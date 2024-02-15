@@ -103,7 +103,7 @@ export const loginUser = async (
 				{ expiresIn: seconds + "s" },
 				(err: any, token: any) => {
 					res.json({
-						user,
+						userInfo: { fullName: `${user.firstName} ${user.lastName}` },
 						token
 					});
 				}
