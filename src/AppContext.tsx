@@ -21,7 +21,10 @@ interface IAppContext {
 		fieldIdCode: string,
 		fieldValue: string
 	) => void;
-	handleLoginFormSubmit: (e: React.FormEvent<HTMLFormElement>, onSuccess: () => void) => void;
+	handleLoginFormSubmit: (
+		e: React.FormEvent<HTMLFormElement>,
+		onSuccess: () => void
+	) => void;
 	currentUser: ICurrentUser;
 }
 
@@ -34,10 +37,12 @@ export const AppContext = createContext<IAppContext>({} as IAppContext);
 export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 	const [books, setBooks] = useState<IBook[]>([]);
 	const [users, setUsers] = useState<IUser[]>([]);
-	const [loginFormData, setLoginFormData] =
-		useState<ILoginFormData>(structuredClone(initialLoginformData));
-	const [currentUser, setCurrentUser] =
-		useState<ICurrentUser>(structuredClone(initialCurrentUser));
+	const [loginFormData, setLoginFormData] = useState<ILoginFormData>(
+		structuredClone(initialLoginformData)
+	);
+	const [currentUser, setCurrentUser] = useState<ICurrentUser>(
+		structuredClone(initialCurrentUser)
+	);
 
 	const loadBooks = async () => {
 		const response = await axios.get(`${backendUrl}/books`);
@@ -84,6 +89,10 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 		switch (fieldIdCode) {
 			case "login":
 				loginFormData.login = fieldValue;
+				console.log(loginFormData.login);
+				if (loginFormData.login.trim() === "") {
+					loginFormData.message = "";
+				}
 				break;
 			case "password":
 				loginFormData.password = fieldValue;
@@ -92,7 +101,10 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 		setLoginFormData(structuredClone(loginFormData));
 	};
 
-	const handleLoginFormSubmit = (e: React.FormEvent<HTMLFormElement>, onSuccess: () => void) => {
+	const handleLoginFormSubmit = (
+		e: React.FormEvent<HTMLFormElement>,
+		onSuccess: () => void
+	) => {
 		e.preventDefault();
 		(async () => {
 			const headers = {
@@ -113,9 +125,13 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 					setCurrentUser(response.data.currentUser);
 					setLoginFormData(structuredClone(initialLoginformData));
 					onSuccess();
+				} else {
+					console.log("ERROR: bad login");
 				}
 			} catch (err) {
 				console.log("ERROR: bad login");
+				loginFormData.message = "Bad login, try again.";
+				setLoginFormData(structuredClone(loginFormData));
 			}
 		})();
 	};
