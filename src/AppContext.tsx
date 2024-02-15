@@ -35,9 +35,9 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 	const [books, setBooks] = useState<IBook[]>([]);
 	const [users, setUsers] = useState<IUser[]>([]);
 	const [loginFormData, setLoginFormData] =
-		useState<ILoginFormData>(initialLoginformData);
+		useState<ILoginFormData>(structuredClone(initialLoginformData));
 	const [currentUser, setCurrentUser] =
-		useState<ICurrentUser>(initialCurrentUser);
+		useState<ICurrentUser>(structuredClone(initialCurrentUser));
 
 	const loadBooks = async () => {
 		const response = await axios.get(`${backendUrl}/books`);
@@ -64,10 +64,10 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 				const _currentUser = response.data.currentUser;
 				setCurrentUser(_currentUser);
 			} else {
-				setCurrentUser(initialCurrentUser);
+				setCurrentUser(structuredClone(initialCurrentUser));
 			}
 		} catch (e) {
-			setCurrentUser(initialCurrentUser);
+			setCurrentUser(structuredClone(initialCurrentUser));
 		}
 	};
 
@@ -111,6 +111,7 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 				if (response.status === 200) {
 					localStorage.setItem("token", response.data.token);
 					setCurrentUser(response.data.currentUser);
+					setLoginFormData(structuredClone(initialLoginformData));
 				}
 			} catch (err) {
 				console.log("ERROR: bad login");
