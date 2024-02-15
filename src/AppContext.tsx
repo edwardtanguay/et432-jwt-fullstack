@@ -2,8 +2,10 @@
 import { createContext, useEffect, useState } from "react";
 import {
 	IBook,
+	ICurrentUser,
 	ILoginFormData,
 	IUser,
+	initialCurrentUser,
 	initialLoginformData,
 } from "./interfaces";
 import axios from "axios";
@@ -32,6 +34,8 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 	const [users, setUsers] = useState<IUser[]>([]);
 	const [loginFormData, setLoginFormData] =
 		useState<ILoginFormData>(initialLoginformData);
+	const [currentUser, setCurrentUser] =
+		useState<ICurrentUser>(initialCurrentUser);
 
 	useEffect(() => {
 		(async () => {
@@ -48,6 +52,30 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 			setUsers(_users);
 		})();
 	}, []);
+
+	useEffect(() => {
+		(async () => {
+			try {
+				const headers = {
+					"Content-Type": "application/json",
+					authorization: `Bearer ${localStorage.getItem("token")}`,
+				};
+				const response = await axios.get(
+					`${backendUrl}/users/current`,
+					{ headers }
+				);
+				if (response.status === 200) {
+					setCurrentUser(response.data.currentUser);
+					console.log("currentUser", currentUser);
+					console.log("statusText", response.statusText);
+				} else {
+					setCurrentUser(initialCurrentUser);
+				}
+			} catch (e) {
+				setCurrentUser(initialCurrentUser);
+			}
+		})();
+	});
 
 	const handleLoginFormFieldChange = (
 		fieldIdCode: string,

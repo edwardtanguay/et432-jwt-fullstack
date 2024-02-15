@@ -3,8 +3,9 @@ import { handleError } from "../../tools";
 import { User } from "../schemas/userSchema";
 import express from "express";
 import jwt from "jsonwebtoken";
-import * as config from '../../config';
-import * as jwttools from '../../jwttools';
+import * as config from "../../config";
+import * as jwttools from "../../jwttools";
+import * as tools from '../../tools';
 
 interface CustomRequest extends Request {
 	token: string;
@@ -88,23 +89,20 @@ export const deleteAllUsers = async (
 	}
 };
 
-export const loginUser = async (
-	req: any,
-	res: express.Response
-) => {
+export const loginUser = async (req: any, res: express.Response) => {
 	try {
 		const { login } = req.body;
 		const user = await User.findOne({ login });
 		if (user !== null) {
-			const seconds = 15;
+			const seconds = 10;
 			jwt.sign(
 				{ user },
 				config.sessionSecret(),
 				{ expiresIn: seconds + "s" },
 				(err: any, token: any) => {
 					res.json({
-						userInfo: { fullName: `${user.firstName} ${user.lastName}` },
-						token
+						currentUser: tools.getCurrentUserFromUser(user), 
+						token,
 					});
 				}
 			);
@@ -123,19 +121,20 @@ export const getCurrentUser = async (req: any, res: express.Response) => {
 			config.sessionSecret(),
 			(err: any) => {
 				if (err) {
-					res.status(403).send('invalid token');
+					res.status(403).send("invalid token");
 				} else {
 					const data = jwttools.decodeJwt(
 						(req as unknown as CustomRequest).token
 					);
+					const currentUser = tools.getCurrentUserFromUser(data.user);
+					console.log(currentUser);
 					res.json({
-						user: data.user
-					})
+						currentUser 
+					});
 				}
 			}
-		)
+		);
+	} catch (e) {
+		handleError(res, e);
 	}
-	catch (e) {
-		handleError(res, e)
-	}
-}
+};
