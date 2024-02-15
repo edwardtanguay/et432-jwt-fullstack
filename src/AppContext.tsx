@@ -26,7 +26,7 @@ interface IAppContext {
 		onSuccess: () => void
 	) => void;
 	currentUser: ICurrentUser;
-	handleLogout: () => void;
+	handleLogout: (onLoggedOut: () => void) => void;
 }
 
 interface IAppProvider {
@@ -137,9 +137,10 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 		})();
 	};
 
-	const handleLogout = () => {
+	const handleLogout = (onLoggedOut: () => void) => {
 		localStorage.removeItem('token');
 		setCurrentUser(structuredClone(initialCurrentUser));
+		onLoggedOut();
 	}
 
 	return (
