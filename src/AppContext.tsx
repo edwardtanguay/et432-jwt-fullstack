@@ -26,6 +26,7 @@ interface IAppContext {
 		onSuccess: () => void
 	) => void;
 	currentUser: ICurrentUser;
+	handleLogout: () => void;
 }
 
 interface IAppProvider {
@@ -136,6 +137,11 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 		})();
 	};
 
+	const handleLogout = () => {
+		localStorage.removeItem('token');
+		setCurrentUser(structuredClone(initialCurrentUser));
+	}
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -145,6 +151,7 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 				handleLoginFormFieldChange,
 				handleLoginFormSubmit,
 				currentUser,
+				handleLogout
 			}}
 		>
 			{children}
